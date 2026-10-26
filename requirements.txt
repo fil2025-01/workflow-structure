@@ -1,0 +1,2 @@
+gspread==6.2.1
+google-auth==2.62.0

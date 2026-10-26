@@ -1,0 +1,4 @@
+#!/bin/sh
+# Runs vcp_workflow.py with its venv. Symlink into PATH: ln -s "$PWD/vcp-workflow" ~/.local/bin/
+dir="$(cd "$(dirname "$(readlink -f "$0")")" && pwd)"
+exec "$dir/.venv/bin/python" "$dir/vcp_workflow.py" "$@"
