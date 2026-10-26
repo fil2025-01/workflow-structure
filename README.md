@@ -21,6 +21,26 @@ Each ticket takes about 30–60 seconds to analyze (up to 3 run at once). Then e
 - **Claude** (`claude -p`, read-only: `jira issue view`, Read, Grep, Glob) reads the ticket and codebase and returns the phases and tasks as structured JSON. The script rejects output with missing phases or points other than 1 or 2.
 - **The script** handles everything that must be exact: numbering, bold, the `HYPERLINK` on the top row, and the title (the Jira summary without leading tags like `[VCP-12933] [AV]`).
 
+## Why a script and not a Claude skill
+
+Here the code writes to the sheet, and Claude only analyzes the ticket. With a skill, Claude would do everything.
+
+What the script gives us:
+- **The same result every time.** The code handles the numbering (7.N), the bold, the `HYPERLINK`, and which row to write to. A model doing this could get a number or the formatting wrong.
+- **Claude's output is checked.** It must have exactly the four phases, with points of 1 or 2, or it is rejected.
+- **Speed.** Up to three tickets are analyzed at once.
+- **No Claude session needed.** Just run `vcp-workflow` in the terminal. `--new-week` doesn't use Claude at all.
+- **Claude is read-only.** It can't edit files or do anything else.
+
+What a skill would give us:
+- **Easier sharing.** With the Google Sheets connector in claude.ai, each person signs in with their own Google account, and that's it. There's no venv, `gcloud` login, `client_secret.json` or test user to add. This is the hardest part of the current setup.
+- **Changes by conversation**, like "split task 2" or "add a migration task", instead of editing JSON.
+- **Easier to change.** You edit Markdown, not Python.
+
+The downsides of a skill: it's slower, uses more tokens, and can get the numbering or formatting in the sheet wrong.
+
+We keep the script because it runs every week and the sheet has to be exact. If the setup is the problem for others, the fix is a simpler setup (for example, a `setup.sh`), not replacing the script. The two can also be combined: a small skill that just runs `vcp-workflow`, so it can be started from Claude and the sheet stays exact.
+
 ## Setup (done once)
 
 - `.venv` with `gspread` + `google-auth` (Python 3.13); `gum` via Homebrew; `vcp-workflow` symlinked into `~/.local/bin`.
